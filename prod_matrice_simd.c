@@ -14,9 +14,10 @@ __m512i* matrice_into_vecteur(int32_t *matrice, int n, int m) {
 	while (i < n) {
 		j = 0;
 		while ((m - j) >= 8) {
-			m512 = _mm512_set_epi64(matrice[i*(j + 7)], matrice[i*(j + 6)], matrice[i*(j + 5)], matrice[i*(j + 4)], matrice[i*(j + 3)], matrice[i*(j + 2)], matrice[i*(j + 1)], matrice[i*(j + 0)]);
-			vecteur[i*m + j] = m512;
-			j += 2;
+			m512 = _mm512_set_epi64(matrice[i*m+(j + 7)], matrice[i*m+(j + 6)], matrice[i*m+(j + 5)], matrice[i*m+(j + 4)], matrice[i*m+(j + 3)], matrice[i*m+(j + 2)], matrice[i*m+(j + 1)], matrice[i*m+(j + 0)]);
+			_mm512_storeu_epi64((void*)&vecteur[i+j/8], m512);
+			//vecteur[i + j] = m512;
+			j += 8;
 		}
 		if (m != j) { // il reste des valeur dans la lignes de ma matrice en rentrer dans un vecteur
 			int64_t *reste;
@@ -30,7 +31,7 @@ __m512i* matrice_into_vecteur(int32_t *matrice, int n, int m) {
 		i += 1;
 	}
 	return vecteur;
-		}
+}
 
 int main() {
 	int32_t *matrice;

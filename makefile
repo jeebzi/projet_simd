@@ -1,4 +1,4 @@
-main : main.c count.h
+main.exe : main.c count.h
 	gcc -Wall -g -o main main.c
 
 prod_matrice_simd.exe : prod_matrice_simd.c
