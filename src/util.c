@@ -16,3 +16,16 @@ int32_t* transpose_matrice32(int32_t *matrice, int n, int m) {
 	return dst;
 }
 
+void affiche_matrice32(int32_t *matrice, int n, int m) {
+	int i=0, j;
+	while (i < n) {
+		j = 0;
+		while (j < m) {
+			printf("%d ", matrice[i*m + j]);
+			j += 1;
+		}
+		printf("\n");
+		i += 1;
+	}
+}
+

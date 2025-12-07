@@ -3,5 +3,6 @@
 
 #include <inttypes.h>
 int32_t* transpose_matrice32(int32_t *matrice, int n, int m);
+void affiche_matrice32(int32_t *matrice, int n, int m);
 
 #endif
