@@ -48,14 +48,3 @@ void affiche_vecteur(__m512i *vecteur, int n, int m) {
 	}
 }
 
-
-int main() {
-	int32_t *matrice;
-	int n = 8, m = 8;
-	matrice = (int32_t*) calloc(n*m, sizeof(int32_t));
-	matrice[8] = 1;
-	__m512i* vecteur;
-	vecteur = matrice_into_vecteur(matrice, n, m);
-	affiche_vecteur(vecteur , n, m);
-	return 0;
-}
