@@ -48,3 +48,20 @@ void affiche_vecteur(__m512i *vecteur, int n, int m) {
 	}
 }
 
+int64_t prod_scalaire32(__m512i A, __m512i B) {
+	/*
+	 * effectue le produit scalaire entre A et B et renvoie le résutltat sur 64 bit
+	 */
+	int64_t dst = 0;
+	__m512i C = _mm512_mullo_epi64(A, B);
+
+	int64_t *res = (int64_t*) &C;
+	int i = 0;
+	while (i<8) {
+		dst += res[i];
+		i += 1;
+	}
+	return dst;
+}
+
+
