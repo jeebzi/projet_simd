@@ -64,4 +64,32 @@ int64_t prod_scalaire32(__m512i A, __m512i B) {
 	return dst;
 }
 
+int64_t* produit_matrice32_vectoriel(__m512i *A, __m512i *B, int n, int m) {
+	/*
+	 * prend deux tableau de vecteur simd représentant des matrices, B est une matrice transposé
+	 * renvoie la matrice de produit des deux
+	 */
+	int64_t *dst;
+	dst = (int64_t*) calloc(n*m, 8);
+	int vecteur_par_ligne = (m + 7) / 8, cpt_vecteur = 0, i = 0, j, k, somme;
+	while (i < n) {
+		j = 0;
+		while (j < m) {
+			k = 0;
+			somme = 0;
+			while (k < vecteur_par_ligne) {
+				somme += prod_scalaire32(A[cpt_vecteur], B[cpt_vecteur]);
+				cpt_vecteur += 1;
+				k += 1;
+			}
+			dst[i*m + j] = somme;
+			j += 1;
+		}
+		i += 1;
+	}
+	return dst;
+}
+
+
+
 

@@ -3,5 +3,6 @@
 
 #include "../src/prod_matrice_simd.h"
 #include "../src/util.h"
+#include "../src/io.h"
 
 #endif
