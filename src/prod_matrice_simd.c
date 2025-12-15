@@ -72,20 +72,24 @@ int64_t* produit_matrice32_vectoriel(__m512i *A, __m512i *B, int n, int m) {
 	int64_t *dst;
 	dst = (int64_t*) calloc(n*m, 8);
 	int vecteur_par_ligne = (m + 7) / 8, cpt_vecteur = 0, i = 0, j, k, somme;
-	while (i < n) {
+	int x, y=0;
+	while (y < n) {
 		j = 0;
-		while (j < m) {
+		x = 0;
+		while (x < m) {
 			k = 0;
 			somme = 0;
 			while (k < vecteur_par_ligne) {
-				somme += prod_scalaire32(A[cpt_vecteur], B[cpt_vecteur]);
+				somme += prod_scalaire32(A[i+k], B[j+k]);
 				cpt_vecteur += 1;
 				k += 1;
 			}
-			dst[i*m + j] = somme;
-			j += 1;
+			dst[y*m + x] = somme;
+			j += vecteur_par_ligne;
+			x += 1;
 		}
-		i += 1;
+		i += vecteur_par_ligne;
+		y += 1;
 	}
 	return dst;
 }
