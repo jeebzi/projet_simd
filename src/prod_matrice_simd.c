@@ -71,21 +71,25 @@ int64_t* produit_matrice32_vectoriel(__m512i *A, __m512i *B, int n, int m) {
 	 */
 	int64_t *dst;
 	dst = (int64_t*) calloc(n*m, 8);
-	int vecteur_par_ligne = (m + 7) / 8, cpt_vecteur = 0, i = 0, j, k, somme;
+	int vecteur_par_ligne = (m + 7) / 8, i = 0, j, k, somme;
+	int x, y = 0; //coordonnée de la matrice dst
 	while (i < n) {
 		j = 0;
+		x = 0;
 		while (j < m) {
 			k = 0;
 			somme = 0;
 			while (k < vecteur_par_ligne) {
-				somme += prod_scalaire32(A[cpt_vecteur], B[cpt_vecteur]);
-				cpt_vecteur += 1;
+				printf("%d %d\n", i+k, j+k);
+				somme += prod_scalaire32(A[i+k], B[j+k]);
 				k += 1;
 			}
 			dst[i*m + j] = somme;
-			j += 1;
+			j += vecteur_par_ligne;
+			x += 1;
 		}
-		i += 1;
+		i += vecteur_par_ligne;
+		y += 1;
 	}
 	return dst;
 }
