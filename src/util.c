@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include "util.h"
 
 int32_t* transpose_matrice32(int32_t *matrice, int n, int m) {
 	/*
@@ -10,7 +11,7 @@ int32_t* transpose_matrice32(int32_t *matrice, int n, int m) {
 	dst = (int32_t*) malloc(n*m*4);
 	for (int i=0; i<n; i++) {
 		for (int j=0; j<m; j++) {
-			dst[j*m + i] = matrice[i*m + j];
+			dst[j*n + i] = matrice[i*m + j];
 		}
 	}
 	return dst;
@@ -29,3 +30,24 @@ void affiche_matrice32(int32_t *matrice, int n, int m) {
 	}
 }
 
+void seed_prng_highres(void) {
+    unsigned s = (unsigned)time(NULL);
+    s ^= (unsigned)clock();
+    s ^= (unsigned)((uintptr_t)&s >> 4);
+    /* mélanger encore un peu avec plusieurs appels rand() après srand */
+    srand(s);
+}
+
+int32_t* creer_random_vecteur32(int n) {
+	/* 
+	 * retourne en vecteur d'entier 32 bit aléatoire
+	 */
+	int32_t *dst;
+	dst = (int32_t*) malloc(n*4);
+	int i = 0;
+	while (i < n) {
+		dst[i] = (int32_t) (rand() %(1<<31));
+		i += 1;
+	}
+	return dst;
+}

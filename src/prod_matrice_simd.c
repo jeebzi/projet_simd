@@ -8,7 +8,12 @@ __m512i* matrice_into_vecteur(int32_t *matrice, int n, int m) {
 	 * sa représentation pour le SIMD
 	 */
 	__m512i *vecteur, m512;
-	vecteur = (__m512i*) malloc(64 * ((n * m) / 8));
+	int nb_vecteurs = ((n * m) + 7) / 8;
+	// vecteur = (__m512i*) malloc(sizeof(__m512i) * nb_vecteurs);
+	if (posix_memalign((void**)&vecteur, 64, sizeof(*vecteur) * nb_vecteurs) != 0) {
+		perror("posix_memalign");
+		return NULL;
+	}
 
 	int i = 0, j, indice_vecteur=0;
 	while (i < n) {
@@ -42,8 +47,9 @@ void affiche_vecteur(__m512i *vecteur, int n, int m) {
 	/* affiche sur le terminal les valeurs de la matrice n*m représenté dans le vecteur de m512
 	 */
 	for (int i = 0; i < n*((m+7)/8); i++) {
+		int64_t *vals = (int64_t*) &vecteur[i];
 		for (int j=0; j < 8; j++)
-		printf("%lld ", vecteur[i][j]);
+			printf("%ld ", vals[j]);
 		printf("\n");
 	}
 }
@@ -69,9 +75,9 @@ int64_t* produit_matrice32_vectoriel(__m512i *A, __m512i *B, int n, int m) {
 	 * prend deux tableau de vecteur simd représentant des matrices, B est une matrice transposé
 	 * renvoie la matrice de produit des deux
 	 */
-	int64_t *dst;
+	int64_t *dst, somme;
 	dst = (int64_t*) calloc(n*m, 8);
-	int vecteur_par_ligne = (m + 7) / 8, cpt_vecteur = 0, i = 0, j, k, somme;
+	int vecteur_par_ligne = (m + 7) / 8, cpt_vecteur = 0, i = 0, j, k;
 	int x, y=0;
 	while (y < n) {
 		j = 0;
@@ -80,7 +86,8 @@ int64_t* produit_matrice32_vectoriel(__m512i *A, __m512i *B, int n, int m) {
 			k = 0;
 			somme = 0;
 			while (k < vecteur_par_ligne) {
-				somme += prod_scalaire32(A[i+k], B[j+k]);
+				printf("j %d\n", j+k);
+				somme += prod_scalaire32(A[i + k], B[j + k]);
 				cpt_vecteur += 1;
 				k += 1;
 			}
