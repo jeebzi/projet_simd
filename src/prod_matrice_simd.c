@@ -86,7 +86,6 @@ int64_t* produit_matrice32_vectoriel(__m512i *A, __m512i *B, int n, int m) {
 			k = 0;
 			somme = 0;
 			while (k < vecteur_par_ligne) {
-				printf("j %d\n", j+k);
 				somme += prod_scalaire32(A[i + k], B[j + k]);
 				cpt_vecteur += 1;
 				k += 1;
