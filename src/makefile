@@ -1,7 +1,7 @@
 FLAG = -mavx512f -mavx512dq -Wall -g
 
-libmylib.a: util.o prod_matrice_simd.o io.o bench.o
-	ar crs libmylib.a prod_matrice_simd.o util.o io.o bench.o
+libmylib.a: util.o prod_matrice_simd.o io.o bench.o sequentiel.o
+	ar crs libmylib.a $^
 
 
 prod_matrice_simd.o: prod_matrice_simd.c prod_matrice_simd.h
@@ -12,7 +12,10 @@ util.o: util.c util.h
 io.o: io.c io.h
 	gcc $(FLAG) -c io.c
 
-bench.o: bench.c bench.h util.c prod_matrice_simd.c
+bench.o: bench.c bench.h util.c prod_matrice_simd.o sequentiel.o
+	gcc $(FLAG) -c $< -o $@
+
+sequentiel.o: sequentiel.c sequentiel.h
 	gcc $(FLAG) -c $< -o $@
 
 clean:
