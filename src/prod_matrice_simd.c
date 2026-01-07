@@ -43,6 +43,44 @@ __m512i* matrice_into_vecteur(int32_t *matrice, int n, int m) {
 	return vecteur;
 }
 
+__m512* matrice_into_vecteur_ps(float *matrice, int n, int m) {
+	__m512 *vecteur, m512;
+	int nb_vecteurs = ((n*m) + 15) / 16;
+	if (posix_memalign((void**)&vecteur, 64, sizeof(*vecteur) * nb_vecteurs) != 0) {
+		perror("posix_memalign");
+		return NULL;
+	}
+
+	int i = 0, j, indice_vecteur=0;
+	while (i < n) {
+		j = 0;
+		while ((m - j) >= 16) {
+			m512 = _mm512_set_ps(matrice[i*m+(j + 15)], matrice[i*m+(j + 14)], matrice[i*m+(j + 13)], matrice[i*m+(j + 12)], matrice[i*m+(j + 11)], matrice[i*m+(j + 10)], matrice[i*m+(j + 9)],
+				       	matrice[i*m+(j + 8)], matrice[i*m+(j + 7)], matrice[i*m+(j + 6)], matrice[i*m+(j + 5)], matrice[i*m+(j + 4)], matrice[i*m+(j + 3)], matrice[i*m+(j + 2)], matrice[i*m+(j + 1)], matrice[i*m+(j + 0)]);
+			_mm512_storeu_ps((void*)&vecteur[indice_vecteur], m512);
+			j += 8;
+			indice_vecteur += 1;
+		}
+		if (m != j) {
+			float *reste;
+			reste = (float*) calloc(16, sizeof(float));
+			int ecart = m - j, k=0;
+			while (k < ecart) {
+				reste[k] = matrice[i*m + j];
+				j += 1;
+				k += 1;
+			}
+			m512 = _mm512_loadu_ps(reste);
+			_mm512_storeu_ps((void*)&vecteur[indice_vecteur], m512);
+			indice_vecteur += 1;
+		}
+		i += 1;
+	}
+	return vecteur;
+}
+
+
+
 void affiche_vecteur(__m512i *vecteur, int n, int m) {
 	/* affiche sur le terminal les valeurs de la matrice n*m représenté dans le vecteur de m512
 	 */
@@ -70,6 +108,22 @@ int64_t prod_scalaire32(__m512i A, __m512i B) {
 	return dst;
 }
 
+float prod_scalaire_ps(__m512 A, __m512 B) {
+	/*
+	 * fait le produit scalaire entre des simple précisions
+	 */
+	float dst = 0;
+	__m512 C = _mm512_mul_ps(A, B);
+	float *res = (float*) &C;
+	int i = 0;
+	while (i < 16) {
+		dst += res[i];
+		i += 1;
+	}
+	return dst;
+}
+
+
 int64_t* produit_matrice32_vectoriel(__m512i *A, __m512i *B, int n, int m) {
 	/*
 	 * prend deux tableau de vecteur simd représentant des matrices, B est une matrice transposé
@@ -87,6 +141,32 @@ int64_t* produit_matrice32_vectoriel(__m512i *A, __m512i *B, int n, int m) {
 			somme = 0;
 			while (k < vecteur_par_ligne) {
 				somme += prod_scalaire32(A[i + k], B[j + k]);
+				cpt_vecteur += 1;
+				k += 1;
+			}
+			dst[y*m + x] = somme;
+			j += vecteur_par_ligne;
+			x += 1;
+		}
+		i += vecteur_par_ligne;
+		y += 1;
+	}
+	return dst;
+}
+
+float* produit_matrice_ps_vectoriel(__m512 *A, __m512 * B, int n, int m) {
+	float *dst, somme;
+	dst = (float*) calloc(n*m, sizeof(float));
+	int vecteur_par_ligne = (m + 15) / 16, cpt_vecteur = 0, i = 0, j, k;
+	int x, y=0;
+	while (y < n) {
+		j = 0;
+		x = 0;
+		while (x < m) {
+			k = 0;
+			somme = 0;
+			while (k < vecteur_par_ligne) {
+				somme += prod_scalaire_ps(A[i + k], B[j + k]);
 				cpt_vecteur += 1;
 				k += 1;
 			}

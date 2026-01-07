@@ -51,3 +51,14 @@ int32_t* creer_random_vecteur32(int n) {
 	}
 	return dst;
 }
+
+float* creer_random_vecteur_ps(int n) {
+	float *dst;
+	dst = (float*) malloc(n*sizeof(float));
+	int i = 0;
+	while (i < n) {
+		dst[i] = (float) (rand() % (1 << 16));
+		i += 1;
+	}
+	return dst;
+}
