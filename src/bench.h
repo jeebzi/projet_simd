@@ -13,5 +13,6 @@ static __inline__ unsigned long long rdtscp(void)
 
 unsigned long long bench_prod_mat_int(int iteration, int nb_sample, int taille);
 unsigned long long bench_prod_mat_int_seq(int iteration, int nb_sample, int taille);
+unsigned long long bench_prod_mat_ps(int iteration, int nb_sample, int taille);
 
 #endif

@@ -58,12 +58,13 @@ __m512* matrice_into_vecteur_ps(float *matrice, int n, int m) {
 			m512 = _mm512_set_ps(matrice[i*m+(j + 15)], matrice[i*m+(j + 14)], matrice[i*m+(j + 13)], matrice[i*m+(j + 12)], matrice[i*m+(j + 11)], matrice[i*m+(j + 10)], matrice[i*m+(j + 9)],
 				       	matrice[i*m+(j + 8)], matrice[i*m+(j + 7)], matrice[i*m+(j + 6)], matrice[i*m+(j + 5)], matrice[i*m+(j + 4)], matrice[i*m+(j + 3)], matrice[i*m+(j + 2)], matrice[i*m+(j + 1)], matrice[i*m+(j + 0)]);
 			_mm512_storeu_ps((void*)&vecteur[indice_vecteur], m512);
-			j += 8;
+			j += 16;
 			indice_vecteur += 1;
 		}
 		if (m != j) {
-			float *reste;
-			reste = (float*) calloc(16, sizeof(float));
+			// float *reste;
+			// reste = (float*) calloc(16, sizeof(float));
+			float reste[16] = {0};
 			int ecart = m - j, k=0;
 			while (k < ecart) {
 				reste[k] = matrice[i*m + j];
@@ -71,7 +72,8 @@ __m512* matrice_into_vecteur_ps(float *matrice, int n, int m) {
 				k += 1;
 			}
 			m512 = _mm512_loadu_ps(reste);
-			_mm512_storeu_ps((void*)&vecteur[indice_vecteur], m512);
+			// _mm512_storeu_ps((float*)&vecteur[indice_vecteur], m512);
+			vecteur[indice_vecteur] = m512;
 			indice_vecteur += 1;
 		}
 		i += 1;
@@ -88,6 +90,15 @@ void affiche_vecteur(__m512i *vecteur, int n, int m) {
 		int64_t *vals = (int64_t*) &vecteur[i];
 		for (int j=0; j < 8; j++)
 			printf("%ld ", vals[j]);
+		printf("\n");
+	}
+}
+
+void affiche_vecteur_ps(__m512 *vecteur, int n, int m) {
+	for (int i = 0; i < n*((m+15)/16); i++) {
+		float *vals = (float*) &vecteur[i];
+		for (int j=0; j < 16; j++)
+			printf("%f ", vals[j]);
 		printf("\n");
 	}
 }
