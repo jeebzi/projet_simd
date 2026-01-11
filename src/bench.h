@@ -16,5 +16,6 @@ unsigned long long bench_prod_mat_int_seq(int iteration, int nb_sample, int tail
 unsigned long long bench_prod_mat_ps(int iteration, int nb_sample, int taille);
 unsigned long long bench_prod_mat_ps_seq(int iteration, int nb_sample, int taille);
 unsigned long long bench_prod_mat_pd(int iteration, int nb_sample, int taille);
+unsigned long long bench_prod_mat_pd_seq(int iteration, int nb_sample, int taille);
 
 #endif

@@ -205,3 +205,41 @@ unsigned long long bench_prod_mat_ps_seq(int iteration, int nb_sample, int taill
 	return cycle_moy;
 }
 
+
+unsigned long long bench_prod_mat_pd_seq(int iteration, int nb_sample, int taille) {
+	unsigned long long cycle_moy = 0, nb_cycle;
+	int i, j, debut, fin, min;
+
+	//chauffe cache
+	double *A = creer_random_vecteur_pd(taille * taille);
+	double *B = creer_random_vecteur_pd(taille * taille);
+
+	i = 0;
+	while (i < 100) {
+		prod_mat_pd_seq(A, B, taille, taille, taille);
+		i += 1;
+	}
+
+	//calcule du nombre de cycle moyen
+	i = 0;
+	while (i < nb_sample) {
+		double *A = creer_random_vecteur_pd(taille * taille);
+		double *B = creer_random_vecteur_pd(taille * taille);
+
+		min = 0;
+		j = 0;
+		while (j < iteration) {
+			debut = rdtscp();
+			prod_mat_pd_seq(A, B, taille, taille, taille);
+			fin = rdtscp();
+			nb_cycle = fin - debut;
+			if (j == 0 || nb_cycle < min)
+				min = nb_cycle;
+			j += 1;
+		}
+		cycle_moy += min;
+		i += 1;
+	}
+	cycle_moy = cycle_moy / nb_sample;
+	return cycle_moy;
+}

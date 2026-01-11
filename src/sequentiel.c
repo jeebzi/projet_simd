@@ -39,3 +39,23 @@ float* prod_mat_ps_seq(float *A, float *B, int n, int h, int m) {
 	}
 	return dst;
 }
+
+double* prod_mat_pd_seq(double *A, double *B, int n, int h, int m) {
+	double *dst = (double*) calloc(n*m, sizeof(double));
+	int i, j, k;
+
+	i = 0;
+	while (i < n) {
+		j = 0;
+		while (j < m) {
+			k = 0;
+			while (k < h) {
+				dst[i * m + j] += A[i * h + k] * B[k * m + j];
+				k += 1;
+			}
+			j += 1;
+		}
+		i += 1;
+	}
+	return dst;
+}
