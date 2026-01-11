@@ -62,3 +62,14 @@ float* creer_random_vecteur_ps(int n) {
 	}
 	return dst;
 }
+
+double* creer_random_vecteur_pd(int n) {
+	double *dst;
+	dst = (double*) malloc(n*sizeof(double));
+	int i = 0;
+	while (i < n) {
+		dst[i] = (double) (rand() % (1 << 16));
+		i += 1;
+	}
+	return dst;
+}

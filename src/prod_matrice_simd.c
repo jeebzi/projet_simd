@@ -81,6 +81,42 @@ __m512* matrice_into_vecteur_ps(float *matrice, int n, int m) {
 	return vecteur;
 }
 
+__m512d* matrice_into_vecteur_pd(double *matrice, int n, int m) {
+	/*prend en entrée une matrice de taille n, m et renvoie
+	 * sa représentation pour le SIMD
+	 */
+	__m512d *vecteur, m512;
+	int nb_vecteurs = ((n * m) + 7) / 8;
+	if (posix_memalign((void**)&vecteur, 64, sizeof(*vecteur) * nb_vecteurs) != 0) {
+		perror("posix_memalign");
+		return NULL;
+	}
+
+	int i = 0, j, indice_vecteur=0;
+	while (i < n) {
+		j = 0;
+		while ((m - j) >= 8) {
+			m512 = _mm512_set_pd(matrice[i*m+(j + 7)], matrice[i*m+(j + 6)], matrice[i*m+(j + 5)], matrice[i*m+(j + 4)], matrice[i*m+(j + 3)], matrice[i*m+(j + 2)], matrice[i*m+(j + 1)], matrice[i*m+(j + 0)]);
+			_mm512_storeu_pd((void*)&vecteur[indice_vecteur], m512);
+			j += 8;
+			indice_vecteur += 1;
+		}
+		if (m != j) { // il reste des valeur dans la lignes de ma matrice en rentrer dans un vecteur
+			int64_t reste[8] = {0};
+			int ecart = m - j, k=0;
+			while (k<ecart) {
+				reste[k] = matrice[i*m + j];
+				j += 1;
+				k += 1;
+			}
+			m512 = _mm512_loadu_pd(reste);
+			vecteur[indice_vecteur] = m512;
+			indice_vecteur += 1;
+		}
+		i += 1;
+	}
+	return vecteur;
+}
 
 
 void affiche_vecteur(__m512i *vecteur, int n, int m) {
@@ -111,6 +147,19 @@ int64_t prod_scalaire32(__m512i A, __m512i B) {
 	__m512i C = _mm512_mullo_epi64(A, B);
 
 	int64_t *res = (int64_t*) &C;
+	int i = 0;
+	while (i<8) {
+		dst += res[i];
+		i += 1;
+	}
+	return dst;
+}
+
+double prod_scalaire_pd(__m512d A, __m512d B) {
+	double dst = 0;
+	__m512d C = _mm512_mul_pd(A, B);
+
+	double *res = (double*) &C;
 	int i = 0;
 	while (i<8) {
 		dst += res[i];
@@ -192,5 +241,30 @@ float* produit_matrice_ps_vectoriel(__m512 *A, __m512 * B, int n, int m) {
 }
 
 
+double* produit_matrice_pd_vectoriel(__m512d *A, __m512d *B, int n, int m) {
+	double *dst, somme;
+	dst = (double*) calloc(n*m, 8);
+	int vecteur_par_ligne = (m + 7) / 8, cpt_vecteur = 0, i = 0, j, k;
+	int x, y=0;
+	while (y < n) {
+		j = 0;
+		x = 0;
+		while (x < m) {
+			k = 0;
+			somme = 0;
+			while (k < vecteur_par_ligne) {
+				somme += prod_scalaire_pd(A[i + k], B[j + k]);
+				cpt_vecteur += 1;
+				k += 1;
+			}
+			dst[y*m + x] = somme;
+			j += vecteur_par_ligne;
+			x += 1;
+		}
+		i += vecteur_par_ligne;
+		y += 1;
+	}
+	return dst;
+}
 
 
