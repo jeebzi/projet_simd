@@ -7,6 +7,8 @@ int main(int argc, char **argv) {
 	unsigned long long cycle_moy;
 	cycle_moy = bench_prod_mat_ps(iteration, nb_sample, n);
 	printf("matrice de float de taille %d multiplication AVX512 prend %llu cycles\n", n, cycle_moy);
+	cycle_moy = bench_prod_mat_ps_seq(iteration, nb_sample, n);
+	printf("matrice de float de taille %d multiplication séquentiel prend %llu cycles\n", n, cycle_moy);
 	return 0;
 }
 
