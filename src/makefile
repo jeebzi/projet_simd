@@ -1,5 +1,7 @@
 FLAG = -mavx512f -mavx512dq -Wall -g
 
+.PHONY: clean
+
 libmylib.a: util.o prod_matrice_simd.o io.o bench.o sequentiel.o
 	ar crs libmylib.a $^
 
@@ -19,4 +21,4 @@ sequentiel.o: sequentiel.c sequentiel.h
 	gcc $(FLAG) -c $< -o $@
 
 clean:
-	rm *.exe
+	rm *.o libmylib.a

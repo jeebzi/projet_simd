@@ -4,3 +4,7 @@ DBUG = -O0 -fno-omit-frame-pointer
 
 main.exe: main.c
 	gcc $(CFLAGS) $< $(INCLUDES) -o $@
+.PHONY: clean
+
+clean:
+	rm main.exe
