@@ -8,7 +8,7 @@ __m512i* matrice_into_vecteur(int32_t *matrice, int n, int m) {
 	 * sa représentation pour le SIMD
 	 */
 	__m512i *vecteur, m512;
-	int nb_vecteurs = ((n * m) + 7) / 8;
+	int nb_vecteurs = n * ((m + 7) / 8);
 	// vecteur = (__m512i*) malloc(sizeof(__m512i) * nb_vecteurs);
 	if (posix_memalign((void**)&vecteur, 64, sizeof(*vecteur) * nb_vecteurs) != 0) {
 		perror("posix_memalign");
@@ -45,7 +45,7 @@ __m512i* matrice_into_vecteur(int32_t *matrice, int n, int m) {
 
 __m512* matrice_into_vecteur_ps(float *matrice, int n, int m) {
 	__m512 *vecteur, m512;
-	int nb_vecteurs = ((n*m) + 15) / 16;
+	int nb_vecteurs = n*((m + 15) / 16);
 	if (posix_memalign((void**)&vecteur, 64, sizeof(*vecteur) * nb_vecteurs) != 0) {
 		perror("posix_memalign");
 		return NULL;
@@ -86,7 +86,7 @@ __m512d* matrice_into_vecteur_pd(double *matrice, int n, int m) {
 	 * sa représentation pour le SIMD
 	 */
 	__m512d *vecteur, m512;
-	int nb_vecteurs = ((n * m) + 7) / 8;
+	int nb_vecteurs = n * ((m + 7) / 8);
 	if (posix_memalign((void**)&vecteur, 64, sizeof(*vecteur) * nb_vecteurs) != 0) {
 		perror("posix_memalign");
 		return NULL;
